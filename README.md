@@ -10,4 +10,7 @@ A custom Hydrogen UI made in Electron
 
 ## Installation
 
-Run ```curl -fsSL https://raw.githubusercontent.com/Phantom8015/Tritium/refs/heads/main/install.sh | bash```
+Run 
+```bash
+curl -fsSL https://raw.githubusercontent.com/Phantom8015/Tritium/refs/heads/main/install.sh | bash
+```
