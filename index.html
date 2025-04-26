@@ -1,0 +1,1246 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Tritium</title>
+    <meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/theme/monokai.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/hint/show-hint.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Fira Code', monospace;
+        background-color: #161816;
+        color: #d4d4d4;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: row;
+      }
+
+      body::-webkit-scrollbar,
+      .scripts::-webkit-scrollbar,
+      .editor-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      .container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tabs {
+        background-color: #252526;
+        display: flex;
+        align-items: center;
+        height: 38px;
+        overflow-x: auto;
+        border-bottom: 1px solid #333;
+      }
+
+      .tab {
+        padding: 0 15px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        border-right: 1px solid #333;
+        font-size: 14px;
+        position: relative;
+      }
+
+      .tab.active {
+        background-color: #161816;
+        color: #569CD6;
+      }
+
+      .tab .close-btn {
+        margin-left: 8px;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+        font-size: 15px;
+      }
+
+      .tab:hover .close-btn {
+        opacity: 1;
+      }
+
+      .sidebar {
+        width: 0;
+        transition: width 0.3s;
+        background: #252526;
+        border-left: 1px solid #333;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .sidebar.open {
+        width: 300px;
+      }
+
+      .sidebar input {
+        margin: 12px;
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        outline: none;
+        background: #161816;
+        color: #ccc;
+        font-family: 'Fira Code', monospace;
+        font-size: 14px;
+      }
+
+      .sidebar .scripts {
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .script-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid #333;
+        cursor: pointer;
+        font-size: 14px;
+        color: #ccc;
+        position: relative;
+      }
+
+      .script-item:hover {
+        background: #161816;
+      }
+
+      .editor-container {
+        flex: 1;
+        background-color: #161816;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .editor-wrapper {
+        width: 100%;
+        height: 100%;
+        display: none;
+      }
+
+      .editor-wrapper.active {
+        display: block;
+      }
+
+      .CodeMirror-gutters {
+        background-color: #161816 !important;
+      }
+
+      .CodeMirror-linenumber {
+        background-color: #161816 !important;
+      }
+
+      .script-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        margin: 8px;
+        padding: 15px;
+        transition: all 0.3s ease;
+        border: 1px solid #333;
+      }
+
+      .saved-script {
+        background-size: cover;
+        background-position: center;
+      }
+
+      .saved-script::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to right, rgba(37, 37, 38, 0.9) 0%, rgba(37, 37, 38, 0.7) 50%, rgba(37, 37, 38, 0.5) 100%);
+        border-radius: 8px;
+        z-index: 0;
+      }
+
+      .saved-script:hover::before {
+        background: linear-gradient(to right, rgba(37, 37, 38, 0.7) 0%, rgba(37, 37, 38, 0.5) 50%, rgba(37, 37, 38, 0.3) 100%);
+      }
+
+      .searched-script {
+        background: linear-gradient(to right, #252526 0%, #1e1e1e 100%);
+      }
+
+      .searched-script:hover {
+        background: linear-gradient(to right, #1e1e1e 0%, #161616 100%);
+      }
+
+      .script-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .script-title {
+        font-weight: 500;
+        font-size: 16px;
+        margin-bottom: 5px;
+      }
+
+      .script-game {
+        font-size: 13px;
+        color: #aaa;
+        margin-bottom: 3px;
+      }
+
+      .script-description {
+        font-size: 12px;
+        color: #888;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .script-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: 11px;
+        color: #666;
+      }
+
+      .script-verified {
+        color: #2ecc71;
+      }
+
+      .script-patched {
+        color: #e74c3c;
+      }
+
+      .script-universal {
+        color: #3498db;
+      }
+
+      .script-key {
+        color: #f39c12;
+      }
+      .CodeMirror-linenumber:hover {
+        color: #7daf7d !important;
+      }
+
+      .CodeMirror {
+        height: 100% !important;
+        font-family: 'Fira Code', monospace !important;
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+        background-color: #161816 !important;
+      }
+
+      .tooltip {
+        position: absolute;
+        background: #161816;
+        color: #ccc;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 14px;
+        display: none;
+        z-index: 20;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      footer {
+        background-color: #252526;
+        height: 38px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0 20px;
+        border-top: 1px solid #333;
+      }
+
+      .button {
+        background-color: #0e639c;
+        color: white;
+        padding: 5px 12px;
+        border: none;
+        border-radius: 4px;
+        font-family: 'Fira Code', monospace;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        display: flex;
+        align-items: center;
+      }
+
+      .button:hover {
+        background-color: #1177bb;
+      }
+
+      .button i {
+        margin-left: 6px;
+        font-size: 15px;
+      }
+
+      .scripts-button {
+        margin-left: auto;
+        margin-right: 10px;
+      }
+
+      .save-button {
+        margin-right: 10px;
+      }
+
+      #status {
+        background: #161816;
+        color: #569CD6;
+        padding: 4px 8px;
+        border-radius: 3px;
+        margin-right: auto;
+        font-size: 15px;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #2ecc71;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 14px;
+        z-index: 100;
+      }
+
+      .toast.show {
+        opacity: 1;
+      }
+
+      .toast.error {
+        background-color: #e74c3c;
+      }
+
+      .CodeMirror-hints {
+        font-family: 'Fira Code', monospace !important;
+        font-size: 14px !important;
+        background-color: #161616 !important;
+        border: 0px;
+      }
+
+      .context-menu {
+        position: absolute;
+        background-color: #252526;
+        border: 1px solid #333;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        min-width: 150px;
+        display: none;
+      }
+
+      .context-menu-item {
+        padding: 8px 12px;
+        color: #d4d4d4;
+        cursor: pointer;
+        font-size: 15px;
+      }
+
+      .context-menu-item:hover {
+        background-color: #161816;
+      }
+
+      .context-menu-separator {
+        height: 1px;
+        background-color: #333;
+        margin: 4px 0;
+      }
+
+      .context-menu-checkbox {
+        margin-left: 8px;
+        color: #569CD6;
+      }
+
+      .autoexecute-indicator {
+        position: absolute;
+        right: 10px;
+        color: #569CD6;
+        font-size: 15px;
+      }
+
+      .console-container {
+        height: 250px;
+        background-color: #1e1e1e;
+        border-top: 1px solid #333;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .console-header {
+        background-color: #252526;
+        padding: 5px 10px;
+        font-size: 15px;
+        color: #569CD6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      ::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        background: transparent;
+      }
+
+      .console-output {
+        flex: 1;
+        overflow-y: auto;
+        padding: 5px 10px;
+        font-size: 15px;
+        font-family: 'Fira Code', monospace;
+        white-space: pre-wrap;
+      }
+
+      .console-clear {
+        cursor: pointer;
+        color: #ccc;
+        font-size: 15px;
+      }
+
+      .console-clear:hover {
+        color: #fff;
+      }
+
+      .log-error {
+        color: #e74c3c;
+      }
+
+      .log-warning {
+        color: #f39c12;
+      }
+
+      .log-info {
+        color: #3498db;
+      }
+
+      .log-success {
+        color: #2ecc71;
+      }
+
+      .log-debug {
+        color: #9b59b6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="tabs" id="tabs"><button id="toggleSidebar" class="button scripts-button">Scripts</button></div>
+      <div class="editor-container" id="editor-container">
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+      <div class="console-container">
+        <div class="console-header"><span>Console</span><span class="console-clear" id="clearConsole">Clear</span></div>
+        <div class="console-output" id="consoleOutput"></div>
+      </div>
+      <footer>
+        <div id="status">Connecting...</div><button id="save-button" class="button save-button">Save <i class="fas fa-save"></i></button><button id="exec-button" class="button">Execute <i class="fas fa-play"></i></button>
+      </footer>
+    </div>
+    <div class="sidebar" id="sidebar"><input type="text" id="searchBox" placeholder="Search scripts..." />
+      <div class="scripts" id="scripts"></div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <div class="context-menu" id="contextMenu">
+      <div class="context-menu-item" id="renameScript">Rename</div>
+      <div class="context-menu-item" id="deleteScript">Delete</div>
+      <div class="context-menu-separator"></div>
+      <div class="context-menu-item" id="autoExecuteScript">Autoexecute <span class="context-menu-checkbox" id="autoExecuteCheckbox">✓</span></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/lua/lua.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/addon/hint/anyword-hint.min.js"></script>
+    <script>
+      const isElectron = window.navigator.userAgent.toLowerCase().indexOf('electron/') > -1;
+      let ipcRenderer;
+      let currentPort = null;
+      if (isElectron) {
+        try {
+          ipcRenderer = require('electron').ipcRenderer;
+        } catch (error) {
+          console.warn('Failed to load electron modules:', error);
+        }
+      }
+      const tabs = document.getElementById('tabs');
+      const editorContainer = document.getElementById('editor-container');
+      const scriptsList = document.getElementById('scripts');
+      const searchBox = document.getElementById('searchBox');
+      const tooltip = document.getElementById('tooltip');
+      const sidebar = document.getElementById('sidebar');
+      const statusElement = document.getElementById('status');
+      const toast = document.getElementById('toast');
+      const contextMenu = document.getElementById('contextMenu');
+      const renameScriptBtn = document.getElementById('renameScript');
+      const deleteScriptBtn = document.getElementById('deleteScript');
+      const autoExecuteScriptBtn = document.getElementById('autoExecuteScript');
+      const autoExecuteCheckbox = document.getElementById('autoExecuteCheckbox');
+      const fs = require('fs');
+      const {Worker} = require('worker_threads');
+      const path = require('path');
+      const consoleOutput = document.getElementById('consoleOutput');
+      const clearConsoleBtn = document.getElementById('clearConsole');
+      let editors = {};
+      let savedScripts = [];
+      let currentTab = null;
+      let currentContextScript = null;
+      let logWatcher = null;
+      let lastLogLine = null;
+      let logFilePath = null;
+      let tabcount = 1;
+
+      function addLog(message, type = 'info') {
+        const logElement = document.createElement('div');
+        logElement.className = `log-${type}`;
+        logElement.textContent = message;
+        consoleOutput.appendChild(logElement);
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+      }
+      clearConsoleBtn.addEventListener('click', () => {
+        consoleOutput.innerHTML = '';
+      });
+
+      function startLogWatcher() {
+        if (!isElectron || !ipcRenderer) return;
+        ipcRenderer.invoke('start-log-watcher').then((result) => {
+          if (result && result.success) {
+            ipcRenderer.on('log-update', (event, logLine) => {
+              let logType = 'info';
+              if (logLine.includes('ERROR') || logLine.includes('Error')) {
+                logType = 'error';
+              } else if (logLine.includes('WARNING') || logLine.includes('Warning')) {
+                logType = 'warning';
+              } else if (logLine.includes('SUCCESS') || logLine.includes('Success')) {
+                logType = 'success';
+              } else if (logLine.includes('DEBUG') || logLine.includes('Debug')) {
+                logType = 'debug';
+              }
+              addLog(logLine, logType);
+            });
+          }
+        });
+      }
+
+      function JoinWatcher() {
+        if (!isElectron || !ipcRenderer) return null;
+        ipcRenderer.invoke('start-log-watcher').then((result) => {
+          if (result && result.success) {
+            ipcRenderer.on('game-join-detected', () => {
+              autoexec();
+            });
+          } else {
+            console.error(result.error);
+          }
+        }).catch((err) => {
+          console.error(err);
+        });
+      }
+      
+      function showToast(message, isError = false) {
+        toast.textContent = message;
+        toast.className = isError ? 'toast error show' : 'toast show';
+        setTimeout(() => {
+          toast.className = 'toast';
+        }, 3000);
+      }
+      
+      const luaKeywords = ['and', 'break', 'do', 'else', 'elseif', 'end', 'false', 'for', 'function', 'if', 'in', 'local', 'nil', 'not', 'or', 'repeat', 'return', 'then', 'true', 'until', 'while', 'print', 'ipairs', 'pairs', 'tonumber', 'tostring', 'type', 'collectgarbage', 'error', 'setmetatable', 'getmetatable', 'require', 'pcall', 'xpcall', 'rawget', 'rawset', 'select', 'assert', 'loadstring', 'dofile', '_G', 'game', 'workspace', 'script', 'math', 'string', 'table', 'coroutine', 'debug', 'os', 'io', 'wait', 'spawn', 'delay', 'tick', 'task', 'Vector3', 'CFrame', 'Color3', 'UDim2', 'loadstring', 'Instance', 'GetService', 'FindFirstChild', 'GetChildren', 'Destroy', 'Clone', 'Parent', 'HttpGet', 'FireServer'];
+      
+      function createEditor(tabId, content) {
+        const editorWrapper = document.createElement('div');
+        editorWrapper.className = 'editor-wrapper';
+        editorWrapper.id = `editor-${tabId}`;
+        editorContainer.appendChild(editorWrapper);
+        const editor = CodeMirror(editorWrapper, {
+          value: content || '-- New script',
+          mode: "lua",
+          theme: "monokai",
+          lineNumbers: true,
+          indentUnit: 2,
+          smartIndent: true,
+          tabSize: 2,
+          indentWithTabs: false,
+          lineWrapping: false,
+          matchBrackets: true,
+          autoCloseBrackets: true,
+          extraKeys: {
+            "Ctrl-Space": function(cm) {
+              cm.showHint({
+                hint: CodeMirror.hint.anyword,
+                words: luaKeywords
+              });
+            },
+            "Tab": function(cm) {
+              const cursor = cm.getCursor();
+              const line = cm.getLine(cursor.line);
+              const cursorPos = cursor.ch;
+              const textBeforeCursor = line.substring(0, cursorPos);
+              if (textBeforeCursor.trim().length > 0 && !textBeforeCursor.endsWith(" ")) {
+                cm.showHint({
+                  hint: CodeMirror.hint.anyword,
+                  words: luaKeywords
+                });
+              } else {
+                cm.replaceSelection("  ", "end");
+              }
+            }
+          }
+        });
+        editor.setSize("100%", "100%");
+        editor.on("keyup", function(cm, event) {
+          const allowedKeys = /^[a-zA-Z0-9_\.]$/;
+          if (allowedKeys.test(event.key)) {
+            cm.showHint({
+              hint: CodeMirror.hint.anyword,
+              words: luaKeywords,
+              completeSingle: false
+            });
+          }
+        });
+        return editor;
+      }
+      
+      function loadSavedScripts() {
+        try {
+          const scripts = localStorage.getItem('savedScripts');
+          if (scripts) {
+            savedScripts = JSON.parse(scripts);
+          }
+        } catch (err) {
+          console.error("Error loading saved scripts:", err);
+          savedScripts = [];
+        }
+      }
+      
+      function persistSavedScripts() {
+        try {
+          localStorage.setItem('savedScripts', JSON.stringify(savedScripts));
+        } catch (err) {
+          console.error("Error saving scripts:", err);
+        }
+      }
+      
+      function loadAutoExecuteScripts() {
+        try {
+          const autoExecScripts = localStorage.getItem('autoExecuteScripts');
+          return autoExecScripts ? JSON.parse(autoExecScripts) : [];
+        } catch (err) {
+          console.error("Error loading autoexecute scripts:", err);
+          return [];
+        }
+      }
+      
+      function saveAutoExecuteScripts(scripts) {
+        try {
+          localStorage.setItem('autoExecuteScripts', JSON.stringify(scripts));
+        } catch (err) {
+          console.error("Error saving autoexecute scripts:", err);
+        }
+      }
+      
+      function isAutoExecuteScript(scriptName) {
+        const autoExecScripts = loadAutoExecuteScripts();
+        return autoExecScripts.includes(scriptName);
+      }
+
+      function toggleAutoExecuteScript(scriptName) {
+        const autoExecScripts = loadAutoExecuteScripts();
+        const index = autoExecScripts.indexOf(scriptName);
+        if (index === -1) {
+          const script = savedScripts.find(s => s.title === scriptName);
+          autoExecScripts.push(scriptName);
+        } else {
+          autoExecScripts.splice(index, 1);
+        }
+        saveAutoExecuteScripts(autoExecScripts);
+        updateAutoExecuteCheckbox(scriptName);
+        renderSavedScripts();
+      }
+      
+      function updateAutoExecuteCheckbox(scriptName) {
+        autoExecuteCheckbox.style.display = isAutoExecuteScript(scriptName) ? 'inline' : 'none';
+      }
+      
+      function showContextMenu(e, scriptName) {
+        e.preventDefault();
+        currentContextScript = scriptName;
+        contextMenu.style.display = 'block';
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.top = `${e.pageY}px`;
+        updateAutoExecuteCheckbox(scriptName);
+      }
+      
+      document.addEventListener('click', () => {
+        contextMenu.style.display = 'none';
+      });
+      
+      renameScriptBtn.addEventListener('click', () => {
+        if (!currentContextScript) return;
+        
+        const scriptItem = Array.from(document.querySelectorAll('.script-item')).find(item => {
+          return item.querySelector('.script-title').textContent === currentContextScript;
+        });
+        
+        if (!scriptItem) return;
+        
+        const titleElement = scriptItem.querySelector('.script-title');
+        const originalName = titleElement.textContent;
+        
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = originalName;
+        input.style.width = '100%';
+        input.style.background = 'transparent';
+        input.style.border = '1px solid #569CD6';
+        input.style.color = '#d4d4d4';
+        input.style.padding = '2px';
+        input.style.fontFamily = 'inherit';
+        
+        
+        titleElement.replaceWith(input);
+        input.focus();
+        
+        function handleRename() {
+          const newName = input.value.trim();
+          
+          if (newName && newName !== originalName) {
+            const scriptIndex = savedScripts.findIndex(s => s.title === originalName);
+            if (scriptIndex !== -1) {
+              savedScripts[scriptIndex].title = newName;
+              
+              
+              const autoExecScripts = loadAutoExecuteScripts();
+              const autoExecIndex = autoExecScripts.indexOf(originalName);
+              if (autoExecIndex !== -1) {
+                autoExecScripts[autoExecIndex] = newName;
+                saveAutoExecuteScripts(autoExecScripts);
+              }
+              
+              persistSavedScripts();
+              showToast(`Script renamed to "${newName}"`);
+            }
+          }
+          
+          
+          titleElement.textContent = newName || originalName;
+          input.replaceWith(titleElement);
+        }
+        
+        input.addEventListener('blur', handleRename);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const newName = input.value.trim();
+            if (savedScripts.some(s => s.title === newName)) {
+              showToast(`Script "${newName}" already exists`, true);
+              input.focus();
+              return;
+            } 
+            handleRename();
+          } else if (e.key === 'Escape') {
+            input.value = originalName;
+            input.blur();
+          }
+        });
+        
+        contextMenu.style.display = 'none';
+      });
+      deleteScriptBtn.addEventListener('click', () => {
+        if (!currentContextScript) return;
+        if (confirm(`Are you sure you want to delete "${currentContextScript}"?`)) {
+          const scriptIndex = savedScripts.findIndex(s => s.title === currentContextScript);
+          if (scriptIndex !== -1) {
+            if (isAutoExecuteScript(currentContextScript)) {
+              toggleAutoExecuteScript(currentContextScript);
+            }
+            savedScripts.splice(scriptIndex, 1);
+            persistSavedScripts();
+            renderSavedScripts();
+            showToast(`Script "${currentContextScript}" deleted`);
+          }
+        }
+      });
+      autoExecuteScriptBtn.addEventListener('click', () => {
+        if (!currentContextScript) return;
+        toggleAutoExecuteScript(currentContextScript);
+      });
+
+      function createTab(name = "Untitled.lua", content = "-- New script") {
+        if (tabcount >= 10) {
+          showToast("Maximum number of tabs reached (10)", true);
+          return;
+        }
+        tabcount++;
+        const id = "tab" + Date.now();
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        const tabName = document.createElement('span');
+        tabName.innerText = name;
+        tab.appendChild(tabName);
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'close-btn';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.onclick = (e) => {
+          e.stopPropagation();
+          closeTab(id);
+        };
+        tab.appendChild(closeBtn);
+        tab.dataset.id = id;
+        tab.dataset.name = name;
+        tabs.insertBefore(tab, document.getElementById('toggleSidebar'));
+        const editor = createEditor(id, content);
+        editors[id] = editor;
+        switchTab(id);
+        tab.addEventListener('click', () => switchTab(id));
+      }
+
+      function switchTab(id) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.editor-wrapper').forEach(e => e.classList.remove('active'));
+        const tab = Array.from(document.querySelectorAll('.tab')).find(t => t.dataset.id === id);
+        if (!tab) return;
+        tab.classList.add('active');
+        const editorWrapper = document.getElementById(`editor-${id}`);
+        if (editorWrapper) {
+          editorWrapper.classList.add('active');
+          if (editors[id]) {
+            setTimeout(() => {
+              editors[id].refresh();
+              editors[id].focus();
+            }, 10);
+          }
+        }
+        currentTab = id;
+      }
+
+      function closeTab(id) {
+        tabcount--;
+        if (!id) return;
+        const tab = Array.from(document.querySelectorAll('.tab')).find(t => t.dataset.id === id);
+        if (tab) {
+          const wasActive = tab.classList.contains('active');
+          tab.remove();
+          const editorWrapper = document.getElementById(`editor-${id}`);
+          if (editorWrapper) {
+            editorWrapper.remove();
+          }
+          delete editors[id];
+          if (wasActive) {
+            const remainingTabIds = Object.keys(editors);
+            if (remainingTabIds.length) {
+              switchTab(remainingTabIds[0]);
+            } else {
+              currentTab = null;
+            }
+          }
+        }
+      }
+
+      function closeCurrentTab() {
+        if (currentTab) closeTab(currentTab);
+      }
+
+      function saveCurrentScript() {
+        if (!currentTab || !editors[currentTab]) {
+          showToast("No script selected to save", true);
+          return;
+        }
+        const tab = Array.from(document.querySelectorAll('.tab')).find(t => t.dataset.id === currentTab);
+        if (!tab) return;
+        const scriptName = tab.dataset.name;
+        const scriptContent = editors[currentTab].getValue();
+        const existingIndex = savedScripts.findIndex(s => s.title === scriptName);
+        if (existingIndex !== -1) {
+          savedScripts[existingIndex].script = scriptContent;
+        } else {
+          savedScripts.push({
+            title: scriptName,
+            script: scriptContent
+          });
+        }
+        persistSavedScripts();
+        showToast(`Script "${scriptName}" saved successfully!`);
+        if (!searchBox.value) {
+          renderSavedScripts();
+        }
+      }
+
+      function renderSavedScripts() {
+          scriptsList.innerHTML = "";
+          if (savedScripts.length === 0) {
+              scriptsList.innerHTML = "<div class='script-item saved-script'>No saved scripts</div>";
+              return;
+          }
+          savedScripts.forEach(script => {
+              const item = document.createElement('div');
+              item.className = 'script-item saved-script';
+              
+              const content = document.createElement('div');
+              content.className = 'script-content';
+              
+              const title = document.createElement('div');
+              title.className = 'script-title';
+              title.innerText = script.title;
+              content.appendChild(title);
+              
+              if (script.game) {
+                  const game = document.createElement('div');
+                  game.className = 'script-game';
+                  game.innerText = `${script.game}`;
+                  content.appendChild(game);
+              }
+              
+              if (script.description) {
+                  const desc = document.createElement('div');
+                  desc.className = 'script-description';
+                  desc.innerText = script.description;
+                  content.appendChild(desc);
+              }
+              
+              item.appendChild(content);
+              item.onclick = () => createTab(script.title, script.script);
+              item.oncontextmenu = (e) => showContextMenu(e, script.title);
+              
+              if (isAutoExecuteScript(script.title)) {
+                  const indicator = document.createElement('span');
+                  indicator.className = 'autoexecute-indicator';
+                  indicator.innerHTML = '⚡';
+                  content.appendChild(indicator);
+              }
+              
+              scriptsList.appendChild(item);
+          });
+      }
+
+      function updateStatus(message, isError = false) {
+        statusElement.textContent = message;
+        statusElement.style.color = isError ? "#e74c3c" : "#569CD6";
+      }
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't') {
+          e.preventDefault();
+          createTab();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'w') {
+          e.preventDefault();
+          closeCurrentTab();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          executeCurrentScript();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          saveCurrentScript();
+        }
+      });
+      document.getElementById('toggleSidebar').addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+      });
+      document.getElementById('save-button').addEventListener('click', saveCurrentScript);
+      document.getElementById('exec-button').addEventListener('click', executeCurrentScript);
+
+      function executeCurrentScript() {
+        if (!currentTab || !editors[currentTab]) {
+          updateStatus("No script selected", true);
+          return;
+        }
+        const code = editors[currentTab].getValue();
+        updateStatus("Executing...");
+        console.log("Executing:", code);
+        if (isElectron && ipcRenderer) {
+          try {
+            ipcRenderer.send('invokeAction', code);
+            ipcRenderer.once('actionReply', (event, result) => {
+              console.log("Result:", result);
+              if (result.startsWith('Error:')) {
+                updateStatus("Failed", true);
+                showToast(result, true);
+              } else {
+                updateStatus("Success");
+                statusElement.style.color = "#2ecc71";
+              }
+              setTimeout(() => {
+                updateStatus(currentPort ? `Ready on port ${currentPort}` : "Ready");
+              }, 3000);
+            });
+          } catch (err) {
+            console.error("Failed to send to Electron:", err);
+            showToast("Error: " + err.message, true);
+            updateStatus("Error", true);
+          }
+        } else {
+          showToast("Executing: " + code.substring(0, 30) + "...");
+          setTimeout(() => {
+            updateStatus("Success");
+            statusElement.style.color = "#2ecc71";
+            setTimeout(() => {
+              updateStatus(currentPort ? `Ready on port ${currentPort}` : "Ready");
+            }, 3000);
+          }, 500);
+        }
+      }
+      async function loadTrending() {
+        updateStatus("Loading trending scripts...");
+        try {
+          const res = await fetch('https://scriptblox.com/api/script/trending?max=20');
+          const data = await res.json();
+          renderScripts(data.result.scripts.filter(s => s.script));
+          updateStatus("Ready");
+        } catch (err) {
+          console.error("Error loading trending scripts:", err);
+          renderSavedScripts();
+          scriptsList.innerHTML += `<div class='script-item'>Infinite Yield</div>`;
+          const infiniteYield = scriptsList.lastChild;
+          infiniteYield.onclick = () => createTab("Infinite Yield.lua", 'loadstring(game:HttpGet("https://rawscripts.net/raw/Infinite-Yield_500"))()');
+          updateStatus("Ready (using local scripts)");
+        }
+      }
+      async function searchScripts(query) {
+          if (query === "") {
+              renderSavedScripts();
+              return;
+          }
+          
+          const localResults = savedScripts.filter(s => 
+              s.title.toLowerCase().includes(query.toLowerCase()) ||
+              (s.game && s.game.toLowerCase().includes(query.toLowerCase()))
+          );
+          
+          if (localResults.length > 0) {
+              renderScripts(localResults.map(s => ({
+                  title: s.title,
+                  game: { name: s.game || "Unknown Game" },
+                  script: s.script,
+                  verified: false,
+                  isPatched: false,
+                  isUniversal: false,
+                  key: false
+              })));
+              return;
+          }
+          
+          updateStatus("Searching...");
+          try {
+              const res = await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(query)}`);
+              const data = await res.json();
+              
+              if (data.result && data.result.scripts) {
+                  renderScripts(data.result.scripts);
+              } else {
+                  scriptsList.innerHTML = "<div class='script-item'>No scripts found</div>";
+              }
+              updateStatus("Ready");
+          } catch (err) {
+              console.error("Error searching scripts:", err);
+              scriptsList.innerHTML = "<div class='script-item'>Error searching. Try again later.</div>";
+              updateStatus("Search failed", true);
+              setTimeout(() => updateStatus("Ready"), 3000);
+          }
+      }
+
+      function renderScripts(scripts) {
+          scriptsList.innerHTML = "";
+          
+          if (!scripts || scripts.length === 0) {
+              scriptsList.innerHTML = "<div class='script-item'>No scripts found</div>";
+              return;
+          }
+
+          scripts.forEach(script => {
+              const item = document.createElement('div');
+              item.className = 'script-item searched-script';
+              
+              const content = document.createElement('div');
+              content.className = 'script-content';
+              
+              const title = document.createElement('div');
+              title.className = 'script-title';
+              title.innerText = script.title;
+              content.appendChild(title);
+              
+              if (script.game && script.game.name) {
+                  const game = document.createElement('div');
+                  game.className = 'script-game';
+                  game.innerText = `${script.game.name}`;
+                  content.appendChild(game);
+              }
+              
+              
+              const meta = document.createElement('div');
+              meta.className = 'script-meta';
+              
+              if (script.verified) {
+                  const verified = document.createElement('span');
+                  verified.className = 'script-verified';
+                  verified.innerText = '✔ Verified';
+                  meta.appendChild(verified);
+              }
+              
+              if (script.isPatched) {
+                  const patched = document.createElement('span');
+                  patched.className = 'script-patched';
+                  patched.innerText = '⚠ Patched';
+                  meta.appendChild(patched);
+              }
+              
+              if (script.isUniversal) {
+                  const universal = document.createElement('span');
+                  universal.className = 'script-universal';
+                  universal.innerText = '🌐 Universal';
+                  meta.appendChild(universal);
+              }
+              
+              if (script.key) {
+                  const key = document.createElement('span');
+                  key.className = 'script-key';
+                  key.innerText = '🔑 Key Required';
+                  meta.appendChild(key);
+              }
+              
+              content.appendChild(meta);
+              item.appendChild(content);
+              
+              
+              item.onclick = () => {
+                  if (script.script) {
+                      createTab(script.title + ".lua", script.script);
+                  } else {
+                      
+                      fetchScriptContent(script._id).then(content => {
+                          if (content) {
+                              createTab(script.title + ".lua", content);
+                          } else {
+                              showToast("Couldn't load script content", true);
+                          }
+                      });
+                  }
+              };
+              
+              scriptsList.appendChild(item);
+          });
+      }
+
+      
+      async function fetchScriptContent(scriptId) {
+          try {
+              const res = await fetch(`https://scriptblox.com/api/script/${scriptId}`);
+              const data = await res.json();
+              return data.result.script;
+          } catch (err) {
+              console.error("Error fetching script content:", err);
+              return null;
+          }
+      }
+      searchBox.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (val.length >= 2) searchScripts(val);
+        else if (val.length === 0) renderSavedScripts();
+        else loadTrending();
+      });
+
+      function checkConnection() {
+        if (!isElectron) {
+          updateStatus("Ready (Not in Electron)");
+          return;
+        }
+        if (ipcRenderer) {
+          ipcRenderer.send('checkConnection');
+          ipcRenderer.once('connectionStatus', (event, result) => {
+            if (result.connected) {
+              currentPort = result.port;
+              updateStatus(`Ready on port ${currentPort}`);
+            } else {
+              updateStatus("Not connected", true);
+              setTimeout(checkConnection, 3000);
+            }
+          });
+        } else {
+          updateStatus("Ready (Dev Mode)");
+        }
+      }
+      window.onload = function() {
+        console.log("Auto-execute scripts:", loadAutoExecuteScripts());
+        console.log("Saved scripts:", savedScripts);
+        loadSavedScripts();
+        startLogWatcher();
+        let lastJoinLine = null;
+        if (isElectron) {
+          const logWorker = JoinWatcher();
+          window.addEventListener('beforeunload', () => {
+            logWorker.terminate();
+          });
+        }
+        createTab('startup.lua', 'loadstring(game:HttpGet("https://rawscripts.net/raw/Infinite-Yield_500"))()');
+        if (savedScripts.length > 0) {
+          renderSavedScripts();
+        } else {
+          loadTrending();
+        }
+        updateStatus("Ready");
+        if (isElectron && ipcRenderer) {
+          ipcRenderer.on('portUpdate', (event, port) => {
+            currentPort = port;
+            console.log("Port updated:", port);
+            updateStatus(`Ready on port ${port}`);
+          });
+        }
+      };
+
+      function autoexec() {
+        console.log("LALALA");
+        const autoExecScripts = loadAutoExecuteScripts();
+        if (autoExecScripts.length > 0) {
+          autoExecScripts.forEach(scriptName => {
+            const script = savedScripts.find(s => s.title === scriptName);
+            const code = script.script;
+            console.log(code)
+            updateStatus("Executing...");
+            console.log("Executing:", code);
+            if (isElectron && ipcRenderer) {
+              try {
+                ipcRenderer.send('invokeAction', code);
+                ipcRenderer.once('actionReply', (event, result) => {
+                  console.log("Result:", result);
+                  if (result.startsWith('Error:')) {
+                    updateStatus("Failed", true);
+                    showToast(result, true);
+                  } else {
+                    updateStatus("Success");
+                    statusElement.style.color = "#2ecc71";
+                  }
+                  setTimeout(() => {
+                    updateStatus(currentPort ? `Ready on port ${currentPort}` : "Ready");
+                  }, 3000);
+                });
+              } catch (err) {
+                console.error("Failed to send to Electron:", err);
+                showToast("Error: " + err.message, true);
+                updateStatus("Error", true);
+              }
+            } else {
+              showToast("Executing: " + code.substring(0, 30) + "...");
+            }
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
