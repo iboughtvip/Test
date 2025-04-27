@@ -11,6 +11,11 @@ ipcMain.handle('start-log-watcher', async () => {
   return logWatcher.start(mainWindow)
 })
 
+ipcMain.on('start-drag', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  win.startDrag();
+});
+
 async function ligma(scriptContent) {
   try {
     for (port = START_PORT; port <= END_PORT; port++) {
@@ -71,16 +76,17 @@ function processData(data) {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1920,
-    height: 1080,
-    minWidth: 1064,
-    minHeight: 586,
+    resizable: false,
+    width: 1450,
+    height: 720,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,  
     },
     icon: __dirname + './icon.png',
-    title: "Tritium"
+    title: "Tritium",
+    titleBarStyle: 'hidden',
+    trafficLightPosition: { x: 1408, y: 12 },
   });
   
   mainWindow.setMenuBarVisibility(false);

@@ -15,7 +15,7 @@
         margin: 0;
         padding: 0;
         font-family: 'Fira Code', monospace;
-        background-color: #161816;
+        background-color: #000000;
         color: #d4d4d4;
         height: 100vh;
         overflow: hidden;
@@ -36,16 +36,19 @@
       }
 
       .tabs {
-        background-color: #252526;
+        background-color: #0e0e0e;
         display: flex;
         align-items: center;
         height: 38px;
-        overflow-x: auto;
-        border-bottom: 1px solid #333;
+        overflow: hidden;
+        -webkit-app-region: drag;
+        cursor: move;
+        flex-wrap: wrap;
       }
 
       .tab {
-        padding: 0 15px;
+        padding: 0 5px;
+        border-radius: 20px;
         height: 100%;
         display: flex;
         align-items: center;
@@ -53,10 +56,13 @@
         border-right: 1px solid #333;
         font-size: 14px;
         position: relative;
+        min-width: 20px;
+        flex: 1 1 auto;
+        transition: flex 0.2s ease, opacity 0.2s ease;
       }
 
       .tab.active {
-        background-color: #161816;
+        background-color: #000000;
         color: #569CD6;
       }
 
@@ -65,10 +71,12 @@
         opacity: 0.6;
         transition: opacity 0.2s;
         font-size: 15px;
+        -webkit-app-region: no-drag;
       }
 
-      .tab:hover .close-btn {
+      .tab:hover .close-btn { 
         opacity: 1;
+        -webkit-app-region: no-drag;
       }
 
       .sidebar {
@@ -91,10 +99,15 @@
         border-radius: 5px;
         border: none;
         outline: none;
-        background: #161816;
+        background: #000000;
         color: #ccc;
         font-family: 'Fira Code', monospace;
         font-size: 14px;
+        transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
+      }
+
+      .sidebar input:focus {
+        border: 1px solid #569CD6;
       }
 
       .sidebar .scripts {
@@ -112,12 +125,12 @@
       }
 
       .script-item:hover {
-        background: #161816;
+        background: #000000;
       }
 
       .editor-container {
         flex: 1;
-        background-color: #161816;
+        background-color: #000000;
         position: relative;
         overflow: hidden;
         
@@ -136,11 +149,11 @@
       }
 
       .CodeMirror-gutters {
-        background-color: #161816 !important;
+        background-color: #000000 !important;
       }
 
       .CodeMirror-linenumber {
-        background-color: #161816 !important;
+        background-color: #000000 !important;
       }
 
       .script-item {
@@ -151,6 +164,26 @@
         padding: 15px;
         transition: all 0.3s ease;
         border: 1px solid #333;
+      }
+      .script-item.searched-script {
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .script-item.searched-script::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, 
+          rgba(0, 0, 0, 0.7) 0%, 
+          rgba(0, 0, 0, 0.8) 50%,
+          rgba(0, 0, 0, 0.9) 100%);
+        z-index: 0;
       }
 
       .saved-script {
@@ -237,16 +270,17 @@
 
       .CodeMirror {
         height: 100% !important;
+        border-radius: 20px !important;
         font-family: 'Fira Code', monospace !important;
         font-size: 15px !important;
         line-height: 1.5 !important;
         color: #d4d4d4 !important;
-        background-color: #161816 !important;
+        background-color: #000000 !important;
       }
 
       .tooltip {
         position: absolute;
-        background: #161816;
+        background: #000000;
         color: #ccc;
         padding: 8px 12px;
         border-radius: 5px;
@@ -257,19 +291,20 @@
       }
 
       footer {
-        background-color: #252526;
-        height: 38px;
+        background-color: #0e0e0e;
+        height: 64px;
         display: flex;
         justify-content: flex-end;
         align-items: center;
         padding: 0 20px;
-        border-top: 1px solid #333;
+        position: relative;
+        z-index: 10;
       }
 
-      .button {
-        background-color: #0e639c;
+      .button, .exec-button {
+        background-color: black;
         color: white;
-        padding: 5px 12px;
+        padding: 10px;
         border: none;
         border-radius: 4px;
         font-family: 'Fira Code', monospace;
@@ -279,10 +314,28 @@
         transition: background 0.2s ease;
         display: flex;
         align-items: center;
+        justify-content: center;
+        margin-left: 10px;
+        height: 50px;
+      }
+
+      .exec-button {
+        background-color: #569CD6;
+        box-shadow: 0 0 10px #569CD6, 0 0 20px #569CD6, 0 0 30px #569CD6;
+        transition: box-shadow 0.3s ease;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
       }
 
       .button:hover {
-        background-color: #1177bb;
+        box-shadow: 0 0 15px #569CD6, 0 0 20px #569CD6, 0 0 30px #569CD6;
+        background-color: #569CD6;
+      }
+
+      .exec-button:hover {
+        box-shadow: 0 0 15px #569CD6, 0 0 30px #569CD6, 0 0 40px #569CD6;
+        background-color: #569CD6;
       }
 
       .button i {
@@ -304,7 +357,7 @@
       }
 
       #status {
-        background: #161816;
+        background: #000000;
         color: #569CD6;
         padding: 4px 8px;
         border-radius: 3px;
@@ -340,7 +393,6 @@
         font-size: 14px !important;
         background-color: #161616 !important;
         color: #d4d4d4 !important;
-        border: 0px;
       }
       .CodeMirror-hint {
         color: #d4d4d4 !important;
@@ -365,7 +417,7 @@
       }
 
       .context-menu-item:hover {
-        background-color: #161816;
+        background-color: #000000;
       }
 
       .context-menu-separator {
@@ -388,14 +440,15 @@
 
       .console-container {
         height: 250px;
-        background-color: #1e1e1e;
+        background-color: #0e0e0e;
         border-top: 1px solid #333;
+        
         display: flex;
         flex-direction: column;
       }
 
       .console-header {
-        background-color: #252526;
+        background-color: #0e0e0e;
         padding: 5px 10px;
         font-size: 15px;
         color: #569CD6;
@@ -448,11 +501,38 @@
       .log-debug {
         color: #9b59b6;
       }
+
+      .tab.closing {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .new-tab {
+        animation: fadeIn 0.2s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .log-entry {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .log-entry.show {
+        opacity: 1;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="tabs" id="tabs"><button id="toggleSidebar" class="button scripts-button">Scripts</button></div>
+      <div class="tabs" id="tabs"></div>
       <div class="editor-container" id="editor-container">
         <div class="tooltip" id="tooltip"></div>
       </div>
@@ -461,7 +541,7 @@
         <div class="console-output" id="consoleOutput"></div>
       </div>
       <footer>
-        <div id="status">Connecting...</div><button id="roblox-button" class="button roblox-button">Launch Roblox<i></i></button><button id="save-button" class="button save-button">Save <i class="fas fa-save"></i></button><button id="exec-button" class="button">Execute <i class="fas fa-play"></i></button>
+        <div id="status">Connecting...</div><button id="roblox-button" class="button roblox-button">Launch Roblox<i></i></button><button id="save-button" class="button save-button">Save <i class="fas fa-save"></i></button><button id="toggleSidebar" class="button scripts-button">Scripts</button><button id="exec-button" class="exec-button"> <i class="fas fa-play"></i></button>
       </footer>
     </div>
     <div class="sidebar" id="sidebar"><input type="text" id="searchBox" placeholder="Search scripts..." />
@@ -517,16 +597,29 @@
       let logWatcher = null;
       let lastLogLine = null;
       let logFilePath = null;
-      let tabcount = 1;
+
+      function makeWindowDraggable() {
+        if (!isElectron || !ipcRenderer) return;
+        const tabsElement = document.getElementById('tabs');
+        tabsElement.style.webkitAppRegion = 'drag';
+        
+        const draggableElements = tabsElement.querySelectorAll('.tab');
+        draggableElements.forEach(el => {
+          el.style.webkitAppRegion = 'no-drag';
+        });
+      }
 
       function addLog(message, type = 'info') {
         if (message.length > 200) {
           message = message.substring(0, 200) + '...';
         }
         const logElement = document.createElement('div');
-        logElement.className = `log-${type}`;
+        logElement.className = `log-${type} log-entry`;
         logElement.textContent = message;
         consoleOutput.appendChild(logElement);
+        setTimeout(() => {
+          logElement.classList.add('show');
+        }, 10);
         consoleOutput.scrollTop = consoleOutput.scrollHeight;
       }
       clearConsoleBtn.addEventListener('click', () => {
@@ -799,14 +892,13 @@
       });
 
       function createTab(name = "Untitled.lua", content = "-- New script") {
-        if (tabcount >= 10) {
-          showToast("Maximum number of tabs reached (10)", true);
+        if (tabs.children.length >= 10) {
+          showToast("Maximum tabs reached", true);
           return;
         }
-        tabcount++;
         const id = "tab" + Date.now();
         const tab = document.createElement('div');
-        tab.className = 'tab';
+        tab.className = 'tab new-tab'; 
         const tabName = document.createElement('span');
         tabName.innerText = name;
         tab.appendChild(tabName);
@@ -820,7 +912,7 @@
         tab.appendChild(closeBtn);
         tab.dataset.id = id;
         tab.dataset.name = name;
-        tabs.insertBefore(tab, document.getElementById('toggleSidebar'));
+        tabs.appendChild(tab);
         const editor = createEditor(id, content);
         editors[id] = editor;
         switchTab(id);
@@ -847,27 +939,32 @@
       }
 
       function closeTab(id) {
-        tabcount--;
-        if (!id) return;
-        const tab = Array.from(document.querySelectorAll('.tab')).find(t => t.dataset.id === id);
-        if (tab) {
-          const wasActive = tab.classList.contains('active');
-          tab.remove();
-          const editorWrapper = document.getElementById(`editor-${id}`);
-          if (editorWrapper) {
-            editorWrapper.remove();
+          const remainingTabIds = Object.keys(editors);
+          const tab = Array.from(document.querySelectorAll('.tab')).find(t => t.dataset.id === id);
+          if (remainingTabIds.length === 1) {
+            return showToast("Cannot close the last tab", true);
           }
-          delete editors[id];
-          if (wasActive) {
-            const remainingTabIds = Object.keys(editors);
-            if (remainingTabIds.length) {
-              switchTab(remainingTabIds[0]);
-            } else {
-              currentTab = null;
+
+          if (tab) {
+              const wasActive = tab.classList.contains('active');
+              tab.remove();
+              const editorWrapper = document.getElementById(`editor-${id}`);
+              if (editorWrapper) {
+                editorWrapper.remove();
+              }
+              delete editors[id];
+              if (wasActive) {
+                const remainingTabIds = Object.keys(editors);
+                if (remainingTabIds.length) {
+                  switchTab(remainingTabIds[0]);
+                } else {
+                  currentTab = null;
             }
           }
         }
       }
+    
+  
 
       function closeCurrentTab() {
         if (currentTab) closeTab(currentTab);
@@ -1081,87 +1178,90 @@
       }
 
       function renderScripts(scripts) {
-          scriptsList.innerHTML = "";
-          
-          if (!scripts || scripts.length === 0) {
-              scriptsList.innerHTML = "<div class='script-item'>No scripts found</div>";
-              return;
-          }
+        scriptsList.innerHTML = "";
+        
+        if (!scripts || scripts.length === 0) {
+            scriptsList.innerHTML = "<div class='script-item'>No scripts found</div>";
+            return;
+        }
 
-          scripts.forEach(script => {
-              const item = document.createElement('div');
-              item.className = 'script-item searched-script';
-              
-              const content = document.createElement('div');
-              content.className = 'script-content';
-              
-              const title = document.createElement('div');
-              title.className = 'script-title';
-              title.innerText = script.title;
-              content.appendChild(title);
-              
-              if (script.game && script.game.name) {
-                  const game = document.createElement('div');
-                  game.className = 'script-game';
-                  game.innerText = `${script.game.name}`;
-                  content.appendChild(game);
-              }
-              
-              
-              const meta = document.createElement('div');
-              meta.className = 'script-meta';
-              
-              if (script.verified) {
-                  const verified = document.createElement('span');
-                  verified.className = 'script-verified';
-                  verified.innerText = '✔ Verified';
-                  meta.appendChild(verified);
-              }
-              
-              if (script.isPatched) {
-                  const patched = document.createElement('span');
-                  patched.className = 'script-patched';
-                  patched.innerText = '⚠ Patched';
-                  meta.appendChild(patched);
-              }
-              
-              if (script.isUniversal) {
-                  const universal = document.createElement('span');
-                  universal.className = 'script-universal';
-                  universal.innerText = '🌐 Universal';
-                  meta.appendChild(universal);
-              }
-              
-              if (script.key) {
-                  const key = document.createElement('span');
-                  key.className = 'script-key';
-                  key.innerText = '🔑 Key Required';
-                  meta.appendChild(key);
-              }
-              
-              content.appendChild(meta);
-              item.appendChild(content);
-              
-              
-              item.onclick = () => {
-                  if (script.script) {
-                      createTab(script.title + ".lua", script.script);
-                  } else {
-                      
-                      fetchScriptContent(script._id).then(content => {
-                          if (content) {
-                              createTab(script.title + ".lua", content);
-                          } else {
-                              showToast("Couldn't load script content", true);
-                          }
-                      });
-                  }
-              };
-              
-              scriptsList.appendChild(item);
-          });
-      }
-
+        scripts.forEach(script => {
+            const item = document.createElement('div');
+            item.className = 'script-item searched-script';
+            
+            
+            if (script.image) {
+                item.style.backgroundImage = `url('${script.image}')`;
+            } else if (script.game && script.game.imageUrl) {
+                item.style.backgroundImage = `url('${script.game.imageUrl}')`;
+            }
+            
+            const content = document.createElement('div');
+            content.className = 'script-content';
+            
+            const title = document.createElement('div');
+            title.className = 'script-title';
+            title.innerText = script.title;
+            content.appendChild(title);
+            
+            if (script.game && script.game.name) {
+                const game = document.createElement('div');
+                game.className = 'script-game';
+                game.innerText = `${script.game.name}`;
+                content.appendChild(game);
+            }
+            
+            const meta = document.createElement('div');
+            meta.className = 'script-meta';
+            
+            if (script.verified) {
+                const verified = document.createElement('span');
+                verified.className = 'script-verified';
+                verified.innerText = '✔ Verified';
+                meta.appendChild(verified);
+            }
+            
+            if (script.isPatched) {
+                const patched = document.createElement('span');
+                patched.className = 'script-patched';
+                patched.innerText = '⚠ Patched';
+                meta.appendChild(patched);
+            }
+            
+            if (script.isUniversal) {
+                const universal = document.createElement('span');
+                universal.className = 'script-universal';
+                universal.innerText = '🌐 Universal';
+                meta.appendChild(universal);
+            }
+            
+            if (script.key) {
+                const key = document.createElement('span');
+                key.className = 'script-key';
+                key.innerText = '🔑 Key Required';
+                meta.appendChild(key);
+            }
+            
+            content.appendChild(meta);
+            item.appendChild(content);
+            
+            item.onclick = () => {
+                if (script.script) {
+                    createTab(script.title + ".lua", script.script);
+                } else {
+                    fetchScriptContent(script._id).then(content => {
+                        if (content) {
+                            createTab(script.title + ".lua", content);
+                        } else {
+                            showToast("Couldn't load script content", true);
+                        }
+                    });
+                }
+            };
+            
+            scriptsList.appendChild(item);
+        });
+    }
       
       async function fetchScriptContent(scriptId) {
           try {
@@ -1204,6 +1304,7 @@
         console.log("Auto-execute scripts:", loadAutoExecuteScripts());
         console.log("Saved scripts:", savedScripts);
         loadSavedScripts();
+        makeWindowDraggable();
         startLogWatcher();
         let lastJoinLine = null;
         if (isElectron) {
