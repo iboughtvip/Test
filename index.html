@@ -295,6 +295,10 @@
         margin-right: 10px;
       }
 
+      .roblox-button {
+        margin-right: 10px;
+      }
+
       #status {
         background: #161816;
         color: #569CD6;
@@ -449,7 +453,7 @@
         <div class="console-output" id="consoleOutput"></div>
       </div>
       <footer>
-        <div id="status">Connecting...</div><button id="save-button" class="button save-button">Save <i class="fas fa-save"></i></button><button id="exec-button" class="button">Execute <i class="fas fa-play"></i></button>
+        <div id="status">Connecting...</div><button id="roblox-button" class="button roblox-button">Launch Roblox<i></i></button><button id="save-button" class="button save-button">Save <i class="fas fa-save"></i></button><button id="exec-button" class="button">Execute <i class="fas fa-play"></i></button>
       </footer>
     </div>
     <div class="sidebar" id="sidebar"><input type="text" id="searchBox" placeholder="Search scripts..." />
@@ -493,6 +497,7 @@
       const autoExecuteScriptBtn = document.getElementById('autoExecuteScript');
       const autoExecuteCheckbox = document.getElementById('autoExecuteCheckbox');
       const fs = require('fs');
+      const { spawn } = require('child_process');
       const {Worker} = require('worker_threads');
       const path = require('path');
       const consoleOutput = document.getElementById('consoleOutput');
@@ -954,6 +959,14 @@
       document.getElementById('toggleSidebar').addEventListener('click', () => {
         sidebar.classList.toggle('open');
       });
+
+      function launchRoblox() {
+        spawn('open /Applications/Roblox.app', {
+          shell: true
+        });
+      }
+
+      document.getElementById('roblox-button').addEventListener('click', launchRoblox);
       document.getElementById('save-button').addEventListener('click', saveCurrentScript);
       document.getElementById('exec-button').addEventListener('click', executeCurrentScript);
 
