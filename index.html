@@ -237,6 +237,7 @@
         font-family: 'Fira Code', monospace !important;
         font-size: 15px !important;
         line-height: 1.5 !important;
+        color: #d4d4d4 !important;
         background-color: #161816 !important;
       }
 
@@ -335,7 +336,11 @@
         font-family: 'Fira Code', monospace !important;
         font-size: 14px !important;
         background-color: #161616 !important;
+        color: #d4d4d4 !important;
         border: 0px;
+      }
+      .CodeMirror-hint {
+        color: #d4d4d4 !important;
       }
 
       .context-menu {
@@ -512,6 +517,9 @@
       let tabcount = 1;
 
       function addLog(message, type = 'info') {
+        if (message.length > 200) {
+          message = message.substring(0, 200) + '...';
+        }
         const logElement = document.createElement('div');
         logElement.className = `log-${type}`;
         logElement.textContent = message;

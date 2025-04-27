@@ -9,11 +9,12 @@ mkdir -p "/tmp/Tritium"
 if [ ! -d "/Applications/Tritium.app" ]; then
   echo "Tritium is not installed. Proceeding with installation."
 else
-  echo "Tritium is already installed. Exiting."
-  exit 0
+  echo "Tritium is already installed. Deleting.."
+  rm -rf "/Applications/Tritium.app"
+  echo "Tritium has been deleted. Proceeding with installation."
 fi
 echo "Downloading Tritium..."
-curl -L -o "/tmp/Tritium/Tritium.zip" "https://github.com/Phantom8015/Tritium/releases/download/v1.0.1/Tritium.zip"
+curl -L -o "/tmp/Tritium/Tritium.zip" "https://github.com/Phantom8015/Tritium/releases/download/v1.0.2/Tritium-1.0.2-arm64-mac.zip"
 echo "Extracting Tritium..."
 unzip -o "/tmp/Tritium/Tritium.zip" -d "/tmp/Tritium"
 mv -f "/tmp/Tritium/Tritium.app" "/Applications"
