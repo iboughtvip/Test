@@ -13,7 +13,7 @@ else
   exit 0
 fi
 echo "Downloading Tritium..."
-curl -L -o "/tmp/Tritium/Tritium.zip" "https://github.com/Phantom8015/Tritium/releases/download/v1.0.0/Tritium.zip"
+curl -L -o "/tmp/Tritium/Tritium.zip" "https://github.com/Phantom8015/Tritium/releases/download/v1.0.1/Tritium.zip"
 echo "Extracting Tritium..."
 unzip -o "/tmp/Tritium/Tritium.zip" -d "/tmp/Tritium"
 mv -f "/tmp/Tritium/Tritium.app" "/Applications"
