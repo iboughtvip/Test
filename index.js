@@ -84,7 +84,7 @@ function createWindow() {
       contextIsolation: false,  
     },
     icon: __dirname + './icon.png',
-    title: "Tritium",
+    title: "RDUI",
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 1408, y: 12 },
   });
