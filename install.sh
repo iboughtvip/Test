@@ -20,4 +20,4 @@ unzip -o "/tmp/Tritium/Tritium.zip" -d "/tmp/Tritium"
 mv -f "/tmp/Tritium/Tritium.app" "/Applications"
 rm -rf "/tmp/Tritium"
 
-echo "Tritium has been successfully installed!"
+echo "RDUI (tritium) has been successfully installed!"
